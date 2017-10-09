@@ -8,19 +8,19 @@ import struct
 
 
 tasks = []
-numRequest = '0001'
-numWS = '001'
+numRequest = 1
+numWS = 1
 
 # reading arguments
 if len(sys.argv) == 1:
 	CSport = 58011
 
-else: 
+else:
 	CSport = int(sys.argv[2])
 
 
 
-CSHostName = socket.gethostname()	 
+CSHostName = socket.gethostname()
 
 def writeInFile():
 
@@ -28,7 +28,7 @@ def writeInFile():
 	x = 8 + len(lrequest[3])
 	filename = open(numRequest + ".txt", "w")
 	for i in range(x, len(request), 1):
-		filename.write(request[i]) 
+		filename.write(request[i])
 
 def putInFile(task, IPWS, portWS):
 
@@ -41,7 +41,7 @@ def removeFile(task,IPWS, portWS):
 	verif = False
 	filename = open("file_processing_tasks.txt", "r")
 	resto = ''
-	
+
 	for lines in filename:
 		line = lines.split()
 		if line != []:
@@ -49,14 +49,14 @@ def removeFile(task,IPWS, portWS):
 					resto = resto + lines
 			else:
 				print '-' + task + ' ' + IPWS + ' ' + str(portWS) + '\n'
-				verif = True	
+				verif = True
 	filename.close()
 
 	filename = open("file_processing_tasks.txt", "w")
-	filename.write(resto)	
+	filename.write(resto)
 	filename.close()
 	return verif
-	
+
 
 def getIPWS():
 
@@ -73,12 +73,12 @@ def getportWS():
 	for lines in filename:
 		line = lines.split()
 		return line[2]
-		
+
 
 
 def WS():
 
-	s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
+	s_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s_udp.bind((CSHostName, CSport))
 
 	while True:
@@ -103,9 +103,9 @@ def WS():
 						raise senderror
 					print "SOCKET_ERROR: Error sending message to WS"
 					print senderror
-						  		
 
-				
+
+
 			if addr[0] != IPWS:
 				answer = 'RAK NOK\n'
 				print "IP_ERROR: Incorrect IP"
@@ -117,28 +117,28 @@ def WS():
 						raise senderror
 					print "SOCKET_ERROR: Error sending message to WS"
 					print senderror
-						 	
-	 
+
+
 			elif answer == '': # otherwise, add to list
-	
+
 				answer = 'RAK OK\n'
 				try:
 					s_udp.sendto(answer, addr)
 					i = 1
 					while(i < len(messages) -2):
-						print '+' + messages[i] + ' ' + IPWS + ' ' + str(portWS) 
+						print '+' + messages[i] + ' ' + IPWS + ' ' + str(portWS)
 						print('\n')
 						putInFile(messages[i], IPWS, portWS)
-						i = i + 1 
+						i = i + 1
 
 				except socket.error as senderror:
 					if(senderror.errno != errno.ECONNREFUSED):
 						raise senderror
 					print "SOCKET_ERROR: Error sending message to WS"
 					print senderror
-						 		
 
-			
+
+
 
 			"""else: # wrong syntax
 				answer = 'RAK ERR\n'
@@ -150,8 +150,8 @@ def WS():
 							raise senderror
 						print "SOCKET_ERROR: Error sending message to WS"
 						print senderror"""
-			
-			messages = ()				 				
+
+			messages = ()
 
 
 		elif messages[0] == 'UNR': # closing the WS
@@ -161,9 +161,9 @@ def WS():
 
 			answer = ''
 			removeAccepted = False
-			
+
 			try:
-				
+
 				i = 1
 				while(i < len(messages) -2 ):
 					taskRemoved = removeFile(messages[i], IPWS, portWS)
@@ -171,7 +171,7 @@ def WS():
 						removeAccepted = True
 						answer = 'UAK OK\n'
 						s_udp.sendto(answer, addr)
-					
+
 					i = i + 1
 
 			except socket.error as senderror:
@@ -179,7 +179,7 @@ def WS():
 					raise senderror
 				print "SOCKET_ERROR: Error sending message to WS"
 				print senderror
-							 					
+
 			if answer == '':
 				answer = 'UAK NOK\n'
 				print "WS_ERROR: WS not found in processing_tasks"
@@ -191,10 +191,10 @@ def WS():
 						raise senderror
 					print "SOCKET_ERROR: Error sending message to WS"
 					print senderror
-						 			
 
-					
-				
+
+
+
 			"""else: # wrong syntax
 				answer = 'UAK ERR\n'
 				print "ARGS_ERROR: Number of arguments are not valid"
@@ -205,39 +205,39 @@ def WS():
 							raise senderror
 						print "SOCKET_ERROR: Error sending message to WS"
 						print senderror"""
-						 				
-		
+
+
 	os._exit(0)
 
 
-	
 
-	
+
+
 while True:
-	
-	
+
+
 	newpid = os.fork()
 	if newpid == 0:
-		WS()  
+		WS()
 	elif newpid > 0:
 
-		s_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    
-		s_tcp.bind((CSHostName, CSport))	
-	
+		s_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s_tcp.bind((CSHostName, CSport))
+
 		while True:
-			
+
 			s_tcp.listen(5) # 	waits for users
 			connection, address = s_tcp.accept()
 
 			request = connection.recv(2048)
 			lrequest = request.split()
 
-				
+
 			if request == "LST\n":
-				
-				
+
+
 				answer = ''
-				
+
 				filename = open("file_processing_tasks.txt", "r")
 
 				filename.seek(0)
@@ -245,28 +245,28 @@ while True:
 				if not first_char:
 					answer = ' '
 		 		else:
-					
+
 					filename.seek(0)
-					x = 1 
+					x = 1
 					for lines in filename:
 						line = lines.split()
-						
+
 						if line[0] == "WCT":
 							answer = answer +  str(x) + '-' + ' ' + 'WCT' + ' ' + '-' + ' ' + 'word count\n'
 						elif line[0] == "FLW":
-							answer = answer +  str(x) +  '-' + ' ' + 'FLW' + ' ' + '-' + ' ' + 'find longest word\n'	
+							answer = answer +  str(x) +  '-' + ' ' + 'FLW' + ' ' + '-' + ' ' + 'find longest word\n'
 						elif line[0] == "UPP":
-							answer = answer + str(x) +  '-' + ' ' + 'UPP' + ' ' + '-' + ' ' + 'convert text to upper case\n'	
+							answer = answer + str(x) +  '-' + ' ' + 'UPP' + ' ' + '-' + ' ' + 'convert text to upper case\n'
 						elif line[0] == "LOW":
-							answer = answer + str(x) +  '-' + ' ' + 'LOW' + ' ' + '-' + ' ' + 'convert text to lower case\n'	
+							answer = answer + str(x) +  '-' + ' ' + 'LOW' + ' ' + '-' + ' ' + 'convert text to lower case\n'
 						else:
 							print "TASK_ERROR: Unrecognizable task"
-							answer = "TASK_ERROR: Unrecognizable task"	
+							answer = "TASK_ERROR: Unrecognizable task"
 
 						x += 1
 
-						
-				connection.sendall(answer)	
+
+				connection.sendall(answer)
 
 				request = connection.recv(1024)
 
@@ -279,37 +279,29 @@ while True:
 				print(request)
 
 				writeInFile()
-
+				numRequest = numRequest.zfill(4)
+				numWS = numWS.zfill(3)
 				IPWS = getIPWS()
 				portWS = getportWS()
-				sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+				sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				sock.connect((IPWS,int(portWS)))
-				answer = "WRQ" + ' ' + lrequest[1] + ' ' + numRequest + numWS + ".txt" +  ' ' +  lrequest[2] + ' ' + '\n'   
+				answer = "WRQ" + ' ' + lrequest[1] + ' ' + str(numRequest) + str(numWS) + ".txt" +  ' ' +  lrequest[2] + ' ' + '\n'   
 				sock.send(answer)
-				sock.close()	
+				sock.close()
 				print(request)
 
 
 
 
-	else: 
-			
-		print "PROCESS_ERROR: Fork error"			
+	else:
 
-			
+		print "PROCESS_ERROR: Fork error"
 
-			
+
+
+
 			#connection.sendall(request)
 			#connection.close()
 
-			
-		# CS - user 
 
-
-
-
-
-
-
-
-	
+		# CS - user
